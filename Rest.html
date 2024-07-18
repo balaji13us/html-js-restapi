@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Compare Commit IDs from API</title>
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    table, th, td {
+      border: 1px solid black;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    .different {
+      background-color: #FFCCCC;
+    }
+  </style>
+</head>
+<body>
+  <h1>Compare Commit IDs from API</h1>
+
+  <h2>Commit IDs Summary for App1</h2>
+  <table id="commitTable">
+    <thead>
+      <tr>
+        <th>Entry</th>
+        <th>Commit ID</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody">
+      <!-- Table rows will be dynamically added here -->
+    </tbody>
+  </table>
+
+  <h2>Differences in Commit IDs</h2>
+  <table id="differenceTable">
+    <thead>
+      <tr>
+        <th>Entry</th>
+        <th>Commit ID</th>
+      </tr>
+    </thead>
+    <tbody id="differenceBody">
+      <!-- Table rows for differences will be dynamically added here -->
+    </tbody>
+  </table>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const apiUrl = 'https://my-json-server.typicode.com/balaji13us/MOCK-JSON-REPO/health';
+
+      // Fetch data from the API endpoint
+      fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+          // Log the data to the console
+          console.log(data);
+
+          // Extract commit IDs from app1
+          const app1Data = data.app1;
+          const commitIds = Object.keys(app1Data).map(key => {
+            return { entry: key, commitId: app1Data[key].commitId };
+          });
+
+          // Display commit IDs in the summary table
+          const tableBody = document.getElementById('tableBody');
+          commitIds.forEach(commit => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${commit.entry}</td>
+              <td>${commit.commitId}</td>
+            `;
+            tableBody.appendChild(row);
+          });
+
+          // Compare commit IDs and display differences
+          const differenceBody = document.getElementById('differenceBody');
+          commitIds.forEach(commit => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${commit.entry}</td>
+              <td>${commit.commitId}</td>
+            `;
+            if (commit.commitId !== '1234') { // Specify the base commit ID to compare against
+              row.classList.add('different');
+            }
+            differenceBody.appendChild(row);
+          });
+        })
+        .catch(error => {
+          console.error('Error fetching data:', error);
+          // Handle error gracefully
+          const tableBody = document.getElementById('tableBody');
+          tableBody.innerHTML = '<tr><td colspan="2">Error fetching data. Please try again later.</td></tr>';
+        });
+    });
+  </script>
+</body>
+</html>
